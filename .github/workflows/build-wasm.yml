@@ -45,6 +45,9 @@ jobs:
           -s FORCE_FILESYSTEM=0 \
           -s TOTAL_MEMORY=67108864 \
           -s INITIAL_MEMORY=33554432 \
+          -s ALLOW_MEMORY_GROWTH=1 \
+          -s RESIZEABLE_CANVAS=0 \
+          -s NO_EXIT_RUNTIME=1 \
           --shell-file shell.html \
           -DPLATFORM_WEB
           
