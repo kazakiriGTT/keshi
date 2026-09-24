@@ -25,6 +25,8 @@
         border-radius: 8px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         display: block;
+        max-width: 100%;
+        height: auto;
       }
       #status {
         color: #e0e0e0;
@@ -96,6 +98,14 @@
           }
         }
       };
+      
+      // マウスイベントの設定
+      canvas.addEventListener('click', function() {
+        canvas.focus();
+      });
+      
+      // キャンバスにフォーカスを設定
+      canvas.focus();
     </script>
     <script async type="text/javascript" src="keshipin.js"></script>
   </body>
