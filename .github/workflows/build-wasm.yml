@@ -59,12 +59,10 @@ jobs:
           
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main'
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kazakiriGTT/keshi.git
-        git checkout -b gh-pages
-        git checkout main -- keshipin.html keshipin.js keshipin.wasm shell.html
-        git add keshipin.html keshipin.js keshipin.wasm shell.html
-        git commit -m 'Deploy WebAssembly build'
-        git push origin gh-pages --force
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        force_orphan: true
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
