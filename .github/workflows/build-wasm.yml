@@ -17,19 +17,16 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Setup Emscripten
-      uses: mymindstorm/setup-emsdk@v14
-      with:
-        version: 3.1.74
-        actions-cache-folder: ''
+    - name: Install Emscripten manually
+      run: |
+        git clone https://github.com/emscripten-core/emsdk.git
+        cd emsdk
+        ./emsdk install 3.1.74
+        ./emsdk activate 3.1.74
+        source ./emsdk_env.sh
         
     - name: Download Raylib for Web
       run: |
