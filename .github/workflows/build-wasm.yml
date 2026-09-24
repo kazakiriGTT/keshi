@@ -1,19 +1,12 @@
-name: Build WebAssembly
+name: Test Emscripten Installation
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
-  build:
+  test-emsdk:
     runs-on: ubuntu-22.04
     
     steps:
@@ -22,7 +15,7 @@ jobs:
         git clone https://github.com/kazakiriGTT/keshi.git .
         git checkout main
       
-    - name: Install Emscripten manually
+    - name: Install Emscripten
       run: |
         git clone https://github.com/emscripten-core/emsdk.git
         cd emsdk
@@ -30,45 +23,3 @@ jobs:
         ./emsdk activate latest
         source ./emsdk_env.sh
         emcc --version
-        
-    - name: Download Raylib for Web
-      run: |
-        curl -L https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip -o raylib-web.zip || wget https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip -O raylib-web.zip
-        unzip raylib-web.zip -d raylib-web
-        ls -la raylib-web
-        
-    - name: Build WebAssembly
-      run: |
-        emcc keshipin_simple.c \
-          -I raylib-web/include \
-          -L raylib-web/lib \
-          -lraylib \
-          -o keshipin.html \
-          -s USE_GLFW=3 \
-          -s ASYNCIFY \
-          -s ALLOW_MEMORY_GROWTH=1 \
-          -s MAX_WEBGL_VERSION=2 \
-          -s MIN_WEBGL_VERSION=2 \
-          -s FORCE_FILESYSTEM=0 \
-          -s TOTAL_MEMORY=67108864 \
-          -s INITIAL_MEMORY=33554432 \
-          --shell-file shell.html \
-          -DPLATFORM_WEB
-      continue-on-error: false
-        
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: wasm-build
-        path: |
-          keshipin.html
-          keshipin.js
-          keshipin.wasm
-          
-    - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: .
-        force_orphan: true
