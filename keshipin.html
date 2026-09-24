@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Keshipin - Eraser Battle Game</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #1a1a2e;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        font-family: Arial, sans-serif;
+      }
+      #game-container {
+        position: relative;
+        margin: 20px;
+      }
+      canvas {
+        border: 2px solid #4a4a6a;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      }
+      #status {
+        color: #e0e0e0;
+        margin: 10px;
+        font-size: 14px;
+      }
+      .error {
+        color: #ff6b6b;
+        background: #2d2d2d;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px;
+        max-width: 600px;
+      }
+      #controls {
+        color: #a0a0a0;
+        margin: 10px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <canvas id="canvas" tabindex="1"></canvas>
+    </div>
+    <div id="status">Loading...</div>
+    <div id="controls">
+      Controls: Arrow keys to move, Space to attack
+    </div>
+    <script>
+      var statusElement = document.getElementById('status');
+      var canvas = document.getElementById('canvas');
+      
+      function setStatus(message) {
+        statusElement.textContent = message;
+      }
+      
+      function showError(message) {
+        var errorDiv = document.createElement('div');
+        errorDiv.className = 'error';
+        errorDiv.textContent = message;
+        document.body.insertBefore(errorDiv, statusElement);
+      }
+      
+      window.addEventListener('error', function(event) {
+        showError('Error: ' + event.message);
+      });
+      
+      Module = {
+        preRun: [],
+        postRun: [],
+        print: function(text) {
+          console.log(text);
+        },
+        printErr: function(text) {
+          console.error(text);
+        },
+        canvas: canvas,
+        setStatus: function(text) {
+          setStatus(text);
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          if (left) {
+            setStatus('Loading... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')');
+          } else {
+            setStatus('Game loaded!');
+          }
+        }
+      };
+      
+      if (typeof window !== 'undefined') {
+        window.addEventListener('resize', function() {
+          if (Module && Module.canvas) {
+            Module.canvas.width = window.innerWidth * 0.8;
+            Module.canvas.height = window.innerHeight * 0.8;
+          }
+        });
+      }
+    </script>
+    <script async type="text/javascript" src="keshipin.js"></script>
+  </body>
+</html>
