@@ -105,17 +105,6 @@
         });
       }
     </script>
-    <script type="text/javascript">
-      var script = document.createElement('script');
-      script.src = 'keshipin.js';
-      script.async = true;
-      script.onerror = function() {
-        setStatus('Failed to load keshipin.js');
-      };
-      script.onload = function() {
-        setStatus('Game loaded!');
-      };
-      document.body.appendChild(script);
-    </script>
+    {{{ SCRIPT }}}
   </body>
 </html>
