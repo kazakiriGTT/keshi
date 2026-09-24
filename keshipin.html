@@ -103,27 +103,6 @@
       
       // キャンバスにフォーカスを設定
       canvas.focus();
-      
-      // マウス座標準化
-      canvas.addEventListener('mousedown', function(e) {
-        var rect = canvas.getBoundingClientRect();
-        var scaleX = canvas.width / rect.width;
-        var scaleY = canvas.height / rect.height;
-        var x = (e.clientX - rect.left) * scaleX;
-        var y = (e.clientY - rect.top) * scaleY;
-        
-        // Emscriptenに正しい座標を送信
-        var event = new MouseEvent('mousedown', {
-          clientX: rect.left + x / scaleX,
-          clientY: rect.top + y / scaleY,
-          bubbles: true,
-          cancelable: true
-        });
-        
-        // 原のイベントを無効化して、正しい座標で再送信
-        e.preventDefault();
-        canvas.dispatchEvent(event);
-      });
     </script>
     <script async type="text/javascript" src="keshipin.js"></script>
   </body>
