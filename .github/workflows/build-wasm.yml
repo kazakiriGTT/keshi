@@ -26,6 +26,6 @@ jobs:
         
     - name: Download Raylib for Web
       run: |
-        curl -L https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip -o raylib-web.zip
+        wget https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip -O raylib-web.zip
         unzip raylib-web.zip -d raylib-web
         ls -la raylib-web
