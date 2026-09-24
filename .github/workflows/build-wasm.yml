@@ -1,0 +1,61 @@
+name: Build WebAssembly
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: latest
+        actions-cache-folder: 'emsdk-cache'
+        
+    - name: Download Raylib for Web
+      run: |
+        wget https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip
+        unzip raylib-5.5_webASM.zip -d raylib-web
+        
+    - name: Build WebAssembly
+      run: |
+        emcc keshipin_simple.c \
+          -I raylib-web/include \
+          -L raylib-web/lib \
+          -lraylib \
+          -o keshipin.html \
+          -s USE_GLFW=3 \
+          -s ASYNCIFY \
+          -s ALLOW_MEMORY_GROWTH=1 \
+          -s MAX_WEBGL_VERSION=2 \
+          -s MIN_WEBGL_VERSION=2 \
+          -s FORCE_FILESYSTEM=0 \
+          -s TOTAL_MEMORY=67108864 \
+          -s INITIAL_MEMORY=33554432 \
+          --shell-file shell.html \
+          -DPLATFORM_WEB
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: wasm-build
+        path: |
+          keshipin.html
+          keshipin.js
+          keshipin.wasm
+          
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
