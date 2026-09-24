@@ -7,6 +7,11 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,8 +28,8 @@ jobs:
         
     - name: Download Raylib for Web
       run: |
-        wget https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip
-        unzip raylib-5.5_webASM.zip -d raylib-web
+        curl -L https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip -o raylib-web.zip
+        unzip raylib-web.zip -d raylib-web
         
     - name: Build WebAssembly
       run: |
@@ -43,6 +48,7 @@ jobs:
           -s INITIAL_MEMORY=33554432 \
           --shell-file shell.html \
           -DPLATFORM_WEB
+      continue-on-error: false
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -59,3 +65,4 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: .
+        force_orphan: true
