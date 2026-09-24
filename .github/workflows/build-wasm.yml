@@ -3,35 +3,26 @@ name: Build WebAssembly
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     
     steps:
     - name: Checkout repository
-      run: |
-        git clone https://github.com/kazakiriGTT/keshi.git .
-        git checkout main
+      uses: actions/checkout@v4
       
-    - name: Install Emscripten
-      run: |
-        git clone https://github.com/emscripten-core/emsdk.git
-        cd emsdk
-        ./emsdk install latest
-        ./emsdk activate latest
-        source ./emsdk_env.sh
-        emcc --version
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: latest
+        actions-cache-folder: 'emsdk-cache'
         
     - name: Build WebAssembly
       run: |
-        source emsdk/emsdk_env.sh
         emcc keshipin_simple.c \
           -I raylib-web/include \
           -L raylib-web/lib \
@@ -45,12 +36,9 @@ jobs:
           -s FORCE_FILESYSTEM=0 \
           -s TOTAL_MEMORY=67108864 \
           -s INITIAL_MEMORY=33554432 \
-          -s ALLOW_MEMORY_GROWTH=1 \
-          -s RESIZEABLE_CANVAS=0 \
-          -s NO_EXIT_RUNTIME=1 \
           --shell-file shell.html \
           -DPLATFORM_WEB
-          
+        
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -59,3 +47,10 @@ jobs:
           keshipin.html
           keshipin.js
           keshipin.wasm
+          
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
