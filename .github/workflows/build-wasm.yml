@@ -1,12 +1,17 @@
-name: Test Emscripten Installation
+name: Build WebAssembly
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  test-emsdk:
+  build:
     runs-on: ubuntu-22.04
     
     steps:
@@ -24,7 +29,38 @@ jobs:
         source ./emsdk_env.sh
         emcc --version
         
-    - name: Test simple compilation
+    - name: Build WebAssembly
       run: |
         source emsdk/emsdk_env.sh
-        emcc keshipin_simple.c -I . -o test.html -s USE_GLFW=3 -DPLATFORM_WEB
+        emcc keshipin_simple.c \
+          -I raylib-web/include \
+          -L raylib-web/lib \
+          -lraylib \
+          -o keshipin.html \
+          -s USE_GLFW=3 \
+          -s ASYNCIFY \
+          -s ALLOW_MEMORY_GROWTH=1 \
+          -s MAX_WEBGL_VERSION=2 \
+          -s MIN_WEBGL_VERSION=2 \
+          -s FORCE_FILESYSTEM=0 \
+          -s TOTAL_MEMORY=67108864 \
+          -s INITIAL_MEMORY=33554432 \
+          --shell-file shell.html \
+          -DPLATFORM_WEB
+          
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: wasm-build
+        path: |
+          keshipin.html
+          keshipin.js
+          keshipin.wasm
+          
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        force_orphan: true
