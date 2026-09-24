@@ -17,19 +17,25 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
     - name: Checkout repository
       uses: actions/checkout@v4
       
     - name: Setup Emscripten
       uses: mymindstorm/setup-emsdk@v14
       with:
-        version: latest
-        actions-cache-folder: 'emsdk-cache'
+        version: 3.1.74
+        actions-cache-folder: ''
         
     - name: Download Raylib for Web
       run: |
-        curl -L https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip -o raylib-web.zip
+        curl -L https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip -o raylib-web.zip || wget https://github.com/raysan5d/raylib/releases/download/5.5/raylib-5.5_webASM.zip -O raylib-web.zip
         unzip raylib-web.zip -d raylib-web
+        ls -la raylib-web
         
     - name: Build WebAssembly
       run: |
